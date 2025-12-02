@@ -36,10 +36,10 @@ formKategori.addEventListener("submit", async (e) => {
   const { error } = await client.from("Categories").insert([{ name }]);
 
   if (error) {
-    console.error("Gagal insert kategori:", error);
-    return alert("Gagal menambah kategori!");
-  }
-
+  console.error("ERROR SUPABASE:", error);
+  alert("Supabase Error: " + JSON.stringify(error, null, 2));
+  return;
+}
   kategoriName.value = "";
   loadCategories();
   alert("Kategori berhasil disimpan!");
