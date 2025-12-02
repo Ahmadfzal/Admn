@@ -99,9 +99,8 @@ formKategori.addEventListener("submit", async (e) => {
     .insert([{ name }]);
 
   if (error) {
-    console.error(error);
-    result.textContent = "❌ ERROR insert: " + error.message;
-    return;
+    console.error("Error insert kategori:", error);
+    return alert("Gagal menambah kategori");
   }
 
   kategoriName.value = "";
@@ -131,11 +130,6 @@ formKategori.addEventListener("submit", async (e) => {
       `<option value="${escapeHtml(c.name)}">${escapeHtml(c.name)}</option>`
     ).join("");
 }
- // fungsi uppload image
-
-// =========== Insert produk ===========
-
-// =========== Load products ===========
 </script>
 </body>
 </html>
