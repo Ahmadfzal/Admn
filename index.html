@@ -66,6 +66,8 @@ const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const formKategori = document.getElementById("formKategori");
 const kategoriName = document.getElementById("kategoriName");
 const result = document.getElementById("result");
+const kategoriList = document.getElementById("kategoriList");
+const productCategory = document.getElementById("productCategory");
 
 // Event submit
 formKategori.addEventListener("submit", async (e) => {
@@ -88,10 +90,30 @@ formKategori.addEventListener("submit", async (e) => {
   kategoriName.value = "";
   await loadCategories();
   alert("Kategori tersimpan");
-
-  result.textContent = "✅ Sukses insert: " + JSON.stringify(data);
-  kategoriName.value = "";
 });
+    async function loadCategories() {
+  const { data, error } = await client
+    .from("Categories")
+    .select("*")
+    .order("id", { ascending: true });
+
+  if (error) {
+    console.error("Error load categories:", error);
+    kategoriList.innerHTML = "<li>Error load categories</li>";
+    return;
+  }
+
+  kategoriList.innerHTML = data
+    .map(c => `<li>${escapeHtml(c.name)}</li>`)
+    .join("");
+
+  // Update dropdown produk
+  productCategory.innerHTML =
+    `<option value="">Pilih kategori...</option>` +
+    data.map(c =>
+      `<option value="${escapeHtml(c.name)}">${escapeHtml(c.name)}</option>`
+    ).join("");
+}
 </script>
 </body>
 </html>
