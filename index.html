@@ -193,38 +193,7 @@ formProduk.addEventListener("submit", async (e) => {
   await loadProducts();
   alert("Produk tersimpan");
 });
-
 // =========== Load products ===========
-async function loadProducts() {
-  const { data, error } = await client
-    .from("Products")
-    .select("*")
-    .order("id", { ascending: false });
-
-  if (error) {
-    console.error("Error load Products:", error);
-    productList.innerHTML = "Error load products";
-    return;
-  }
-
-  productList.innerHTML = data.map(p => `
-    <div style="background:#fff;padding:10px;margin:8px 0;border-radius:8px">
-      <div style="display:flex;gap:10px">
-        <img src="${p.imgUrl || ''}" style="width:80px;height:80px;object-fit:cover;border-radius:6px">
-        <div>
-          <b>${escapeHtml(p.name)}</b><br/>
-          Rp ${escapeHtml(String(p.price))}<br/>
-          <small>${escapeHtml(p.category || '')}</small><br/>
-          <div>${escapeHtml(p.desc || '')}</div>
-          <div>${(p.tags || []).join(", ")}</div>
-          ${p.shopee_link ? `<a href="${p.shopee_link}" target="_blank">Beli</a>` : ""}
-        </div>
-      </div>
-    </div>
-  `).join("");
-}
-
-
 </script>
 </body>
 </html>
