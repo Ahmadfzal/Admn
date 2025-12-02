@@ -18,7 +18,7 @@ formKategori.addEventListener("submit", async (e) => {
   if (!name) return alert("Isi nama kategori");
 
   const { data, error } = await supabase
-    .from("categories")
+    .from("Categories")
     .insert([{ name }]);
 
   if (error) {
@@ -33,7 +33,7 @@ formKategori.addEventListener("submit", async (e) => {
 
 async function loadCategories() {
   const { data, error } = await supabase
-    .from("categories")
+    .from("Categories")
     .select("*")
     .order("id");
 
