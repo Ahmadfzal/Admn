@@ -58,6 +58,7 @@
 // === GANTI SESUAI PUNYA KAMU ===
 const SUPABASE_URL = "https://deqtolfjenzmskfiocxl.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRlcXRvbGZqZW56bXNrZmlvY3hsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1ODYxNzUsImV4cCI6MjA4MDE2MjE3NX0.qJQQlUEKqFrhUAVvqoQWQngm6BCWzv3FuteLOCM4yOg";
+const BUCKET_NAME = "Product-image";
 
 // Inisialisasi Supabase
 const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -68,10 +69,8 @@ const kategoriName = document.getElementById("kategoriName");
 const result = document.getElementById("result");
 const kategoriList = document.getElementById("kategoriList");
 const productCategory = document.getElementById("productCategory");
-const formProduk = document.getElementById("formProduk");
 const productName = document.getElementById("productName");
 const productPrice = document.getElementById("productPrice");
-const productCategory = document.getElementById("productCategory");
 const productDesc = document.getElementById("productDesc");
 const productTags = document.getElementById("productTags");
 const productShopee = document.getElementById("productShopee");
@@ -130,6 +129,93 @@ formKategori.addEventListener("submit", async (e) => {
       `<option value="${escapeHtml(c.name)}">${escapeHtml(c.name)}</option>`
     ).join("");
 }
+// =========== Upload image ===========
+async function uploadImageToStorage(file) {
+  if (!file) return null;
+
+  const ext = file.name.split(".").pop();
+  const fileName = `${Date.now()}.${ext}`;
+
+  const { error } = await client.storage
+    .from(BUCKET_NAME)
+    .upload(fileName, file);
+
+  if (error) {
+    console.error("Upload error:", error);
+    return null;
+  }
+
+  const { data } = client.storage.from(BUCKET_NAME).getPublicUrl(fileName);
+  return data.publicUrl;
+}
+// --- SIMPAN PRODUK KE DATABASE ---
+document.getElementById("formProduk").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const name = document.getElementById("productName").value;
+    const price = document.getElementById("productPrice").value;
+    const desc = document.getElementById("productDesc").value;
+    const tags = document.getElementById("productTags").value.split(" ").map(t => t.trim().toLowerCase());
+    const category = document.getElementById("productCategory").value;
+    const shopee_link = document.getElementById("productShopee").value;
+
+ let Img_url = null;
+  const file = productImage.files[0];
+  if (file) {
+    Img_url = await uploadImageToStorage(file);
+    if (!Img_url) return alert("Gagal upload gambar");
+  }
+    // Simpan ke table Supabase
+    const { error } = await client.from("Products").insert([{
+    name,
+    price,
+    desc,
+    category,
+    tags,
+    shopee_link,
+    Img_url
+}]);
+
+    if (error) {
+    console.error("Insert error details:", JSON.stringify(error, null, 2));
+    alert("Gagal menyimpan produk! Cek console untuk detail.");
+    return;
+}
+
+    alert("Produk berhasil ditambahkan!");
+    e.target.reset();
+    loadProducts(); // refresh daftar
+});
+
+// --- LOAD PRODUK UNTUK DITAMPILKAN DI ADMIN ---
+async function loadProducts() {
+    const { data: products } = await client
+        .from("Products")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+    const grid = document.getElementById("productList");
+    grid.innerHTML = "";
+
+    products.forEach(p => {
+        grid.innerHTML += `
+        <div class="product-card">
+            <img src="${p.Img_url}">
+            <p><b>${p.name}</b></p>
+            <p>Rp ${p.price}</p>
+            <small>Kategori: ${p.category}</small>
+            <p>${p.desc}</p>
+            <<div>
+${(Array.isArray(p.tags) ? p.tags : (p.tags ? p.tags.split(" ") : []))
+    .map(t => `<span class="tag">${t}</span>`).join(" ")}
+</div>
+            <a href="${p.shopee_link}" target="_blank">Shopee</a>
+        </div>`;
+    });
+}
+
+loadProducts();
+loadCategories();
 </script>
 </body>
 </html>
