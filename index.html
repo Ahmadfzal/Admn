@@ -1,24 +1,60 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Test Insert Supabase</title>
+  <meta charset="utf-8" />
+  <title>Admin - Rekomendasiku</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body{font-family:system-ui,Segoe UI,Roboto,Arial;margin:0;padding:20px;background:#f6f7fb}
+    .card{background:#fff;padding:16px;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,.06);max-width:900px;margin:10px auto}
+    h2{margin:0 0 12px 0}
+    form > *{display:block;width:100%;margin:8px 0}
+    input[type=text], input[type=number], textarea, select{padding:10px;border:1px solid #ddd;border-radius:8px}
+    button{padding:10px 14px;border-radius:8px;border:0;background:#1a73e8;color:#fff;cursor:pointer}
+    .row{display:flex;gap:12px}
+    .col{flex:1}
+    #log{font-size:13px;color:#444;margin-top:8px;white-space:pre-wrap}
+  </style>
 </head>
 <body>
+  <div class="card">
+    <h2>Tambah Kategori</h2>
+    <form id="formKategori">
+      <input id="kategoriName" type="text" placeholder="Nama kategori..." required />
+      <button type="submit">Tambah Kategori</button>
+    </form>
 
-<h2>Insert Kategori ke Supabase</h2>
+    <h3 style="margin-top:18px">Daftar Kategori (live)</h3>
+    <ul id="kategoriList"></ul>
+  </div>
 
-<form id="formKategori">
-  <input type="text" id="kategoriName" placeholder="Nama kategori">
-  <button type="submit">Insert</button>
-</form>
+  <div class="card">
+    <h2>Tambah Produk</h2>
+    <form id="formProduk">
+      <input id="productName" type="text" placeholder="Nama produk" required />
+      <div class="row">
+        <input id="productPrice" type="number" placeholder="Harga" class="col" required />
+        <select id="productCategory" class="col" required>
+          <option value="">Pilih kategori...</option>
+        </select>
+      </div>
+      <textarea id="productDesc" placeholder="Deskripsi produk" required></textarea>
+      <input id="productTags" type="text" placeholder="Tags (pisahkan pakai koma) e.g. sepatu,olahraga" />
+      <input id="productShopee" type="text" placeholder="Link Shopee (opsional)" />
+      <input id="productImage" type="file" accept="image/*" />
+      <div style="display:flex;gap:10px;align-items:center">
+        <button id="btnAddProduct" type="submit">Tambah Produk</button>
+        <button id="btnRefresh" type="button" style="background:#6c757d">Refresh list</button>
+      </div>
+    </form>
 
-<div id="result"></div>
+    <h3 style="margin-top:18px">Daftar Produk (live)</h3>
+    <div id="productList"></div>
+  </div>
 
-<!-- Supabase CDN -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<script>
+  <!-- Supabase client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.min.js"></script>
+  <!-- Script admin (pisah file atau bisa tempel di bawah) --><script>
 // === GANTI SESUAI PUNYA KAMU ===
 const SUPABASE_URL = "https://deqtolfjenzmskfiocxl.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRlcXRvbGZqZW56bXNrZmlvY3hsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1ODYxNzUsImV4cCI6MjA4MDE2MjE3NX0.qJQQlUEKqFrhUAVvqoQWQngm6BCWzv3FuteLOCM4yOg";
@@ -53,6 +89,5 @@ formKategori.addEventListener("submit", async (e) => {
   kategoriName.value = "";
 });
 </script>
-
 </body>
 </html>
