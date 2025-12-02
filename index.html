@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Supabase Insert Test</title>
+</head>
+<body>
+
+<h3>Test Insert Supabase</h3>
+
+<button onclick="insertCategory()">Insert Category</button>
+
+<p id="result"></p>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const supabaseUrl = "https://deqtolfjenzmskfiocxl.supabase.co";
+  const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRlcXRvbGZqZW56bXNrZmlvY3hsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1ODYxNzUsImV4cCI6MjA4MDE2MjE3NX0.qJQQlUEKqFrhUAVvqoQWQngm6BCWzv3FuteLOCM4yOg";
+
+  const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+  async function insertCategory() {
+    const { data, error } = await supabaseClient
+      .from('Categories')
+      .insert([
+        { name: 'Test Kategori' }
+      ]);
+
+    if (error) {
+      document.getElementById("result").innerText = "ERROR: " + error.message;
+      console.log(error);
+    } else {
+      document.getElementById("result").innerText = "BERHASIL: " + JSON.stringify(data);
+      console.log(data);
+    }
+  }
+</script>
+
+</body>
+</html>
