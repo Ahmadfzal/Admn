@@ -15,7 +15,6 @@ formKategori.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const name = kategoriName.value.trim();
-  if (!name) return alert("Isi nama kategori");
 
   const { data, error } = await supabase
     .from("Categories")
