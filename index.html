@@ -1,23 +1,58 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Supabase Test</title>
+  <meta charset="UTF-8">
+  <title>Test Insert Supabase</title>
 </head>
 <body>
 
-<h3>Insert Kategori</h3>
+<h2>Insert Kategori ke Supabase</h2>
 
 <form id="formKategori">
   <input type="text" id="kategoriName" placeholder="Nama kategori">
   <button type="submit">Insert</button>
 </form>
 
-<pre id="result"></pre>
+<div id="result"></div>
 
-<!-- Load Supabase dulu -->
+<!-- Supabase CDN -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<!-- Script kamu -->
-<script src="test.js"></script>
+<script>
+// === GANTI SESUAI PUNYA KAMU ===
+const SUPABASE_URL = "https://deqtolfjenzmskfiocxl.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRlcXRvbGZqZW56bXNrZmlvY3hsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1ODYxNzUsImV4cCI6MjA4MDE2MjE3NX0.qJQQlUEKqFrhUAVvqoQWQngm6BCWzv3FuteLOCM4yOg";
+
+// Inisialisasi Supabase
+const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Ambil elemen form & input
+const formKategori = document.getElementById("formKategori");
+const kategoriName = document.getElementById("kategoriName");
+const result = document.getElementById("result");
+
+// Event submit
+formKategori.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const name = kategoriName.value.trim();
+  if (!name) return alert("Isi nama kategori!");
+
+  // INSERT
+  const { data, error } = await supabase
+    .from("Categories") // ← GANTI sesuai huruf tabel kamu!
+    .insert([{ name }]);
+
+  if (error) {
+    console.error(error);
+    result.textContent = "ERROR insert (cek console)";
+    return;
+  }
+
+  result.textContent = "SUKSES: " + JSON.stringify(data);
+  kategoriName.value = "";
+});
+</script>
+
 </body>
 </html>
