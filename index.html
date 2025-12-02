@@ -152,47 +152,8 @@ async function uploadImageToStorage(file) {
   return data.publicUrl;
 }
 
-    // =========== Insert produk ===========
-formProduk.addEventListener("submit", async (e) => {
-  e.preventDefault();
+// =========== Insert produk ===========
 
-  const name = productName.value.trim();
-  const price = productPrice.value;
-  const desc = productDesc.value.trim();
-  const category = productCategory.value;
-  const tags = productTags.value.split(",").map(t => t.trim()).filter(Boolean);
-  const shopee = productShopee.value.trim();
-
-  if (!name || !price || !category) {
-    return alert("Nama, harga, dan kategori wajib diisi");
-  }
-
-  let imgUrl = null;
-  const file = productImage.files[0];
-  if (file) {
-    imgUrl = await uploadImageToStorage(file);
-    if (!imgUrl) return alert("Gagal upload gambar");
-  }
-
-  const payload = {
-    name, category, desc, tags, img_url,
-    shopee_link: shopee,
-    created_at: new Date()
-  };
-
-  const { error } = await client
-    .from("Products")
-    .insert([payload]);
-
-  if (error) {
-    console.error("Error insert Product:", error);
-    return alert("Gagal menyimpan produk");
-  }
-
-  formProduk.reset();
-  await loadProducts();
-  alert("Produk tersimpan");
-});
 // =========== Load products ===========
 </script>
 </body>
