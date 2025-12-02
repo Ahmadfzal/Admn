@@ -85,6 +85,10 @@ formKategori.addEventListener("submit", async (e) => {
     return;
   }
 
+  kategoriName.value = "";
+  await loadCategories();
+  alert("Kategori tersimpan");
+
   result.textContent = "✅ Sukses insert: " + JSON.stringify(data);
   kategoriName.value = "";
 });
