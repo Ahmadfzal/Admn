@@ -141,7 +141,7 @@ formProduk.addEventListener("submit", async (e) => {
 // ================== LOAD PRODUK ==================
 async function loadProducts() {
   const { data, error } = await client
-    .from("products")
+    .from("Products")
     .select("*")
     .order("id", { ascending: false });
 
