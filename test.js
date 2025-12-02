@@ -1,23 +1,29 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Supabase Test</title>
-</head>
-<body>
+// === Init Supabase ===
+const supabaseUrl = "https://deqtolfjenzmskfiocxl.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRlcXRvbGZqZW56bXNrZmlvY3hsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1ODYxNzUsImV4cCI6MjA4MDE2MjE3NX0.qJQQlUEKqFrhUAVvqoQWQngm6BCWzv3FuteLOCM4yOg";
+const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-<h3>Insert Kategori</h3>
+// === Form insert ===
+const formKategori = document.getElementById("formKategori");
+const kategoriName = document.getElementById("kategoriName");
+const result = document.getElementById("result");
 
-<form id="formKategori">
-  <input type="text" id="kategoriName" placeholder="Nama kategori">
-  <button type="submit">Insert</button>
-</form>
+formKategori.addEventListener("submit", async (e) => {
+  e.preventDefault();
 
-<pre id="result"></pre>
+  const name = kategoriName.value.trim();
+  if (!name) return alert("Isi nama kategori");
 
-<!-- Load Supabase dulu -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  // Insert ke Supabase
+  const { data, error } = await supabase
+    .from("categories")
+    .insert([{ name }])
+    .select();
 
-<!-- Script kamu -->
-<script src="test.js"></script>
-</body>
-</html>
+  if (error) {
+    result.textContent = "Error: " + error.message;
+    return;
+  }
+
+  result.textContent = "OK: " + JSON.stringify(data);
+});
