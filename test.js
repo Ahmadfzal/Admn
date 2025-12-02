@@ -16,7 +16,7 @@ formKategori.addEventListener("submit", async (e) => {
 
   // Insert ke Supabase
   const { data, error } = await supabase
-    .from("categories")
+    .from("Categories")
     .insert([{ name }])
     .select();
 
