@@ -68,7 +68,16 @@ const kategoriName = document.getElementById("kategoriName");
 const result = document.getElementById("result");
 const kategoriList = document.getElementById("kategoriList");
 const productCategory = document.getElementById("productCategory");
-
+function escapeHtml(text) {
+  let map = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;'
+  };
+  return text.replace(/[&<>"']/g, m => map[m]);
+}
 // Event submit
 formKategori.addEventListener("submit", async (e) => {
   e.preventDefault();
