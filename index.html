@@ -131,26 +131,7 @@ formKategori.addEventListener("submit", async (e) => {
       `<option value="${escapeHtml(c.name)}">${escapeHtml(c.name)}</option>`
     ).join("");
 }
-
  // fungsi uppload image
-async function uploadImageToStorage(file) {
-  if (!file) return null;
-
-  const ext = file.name.split(".").pop();
-  const fileName = `${Date.now()}.${ext}`;
-
-  const { error } = await client.storage
-    .from(BUCKET_NAME)
-    .upload(fileName, file);
-
-  if (error) {
-    console.error("Upload error:", error);
-    return null;
-  }
-
-  const { data } = client.storage.from(BUCKET_NAME).getPublicUrl(fileName);
-  return data.publicUrl;
-}
 
 // =========== Insert produk ===========
 
