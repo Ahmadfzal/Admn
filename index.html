@@ -88,9 +88,28 @@ function escapeHtml(text) {
 // Event submit
 formKategori.addEventListener("submit", async (e) => {
   e.preventDefault();
-
   const name = kategoriName.value.trim();
   if (!name) return alert("Isi nama kategori!");
+
+  const editId = formKategori.dataset.editId; // cek mode edit
+//fungsi edit
+if (editId) {
+  const { error } = await client
+    .from("Categories")
+    .update({ name })
+    .eq("id", editId);
+
+  if (error) {
+    console.error("Update error:", error);
+    return alert("Gagal mengupdate kategori");
+  }
+
+  alert("Kategori berhasil diupdate!");
+  kategoriName.value = "";
+  delete formKategori.dataset.editId;
+  loadCategories();
+  return;
+}
 
   // INSERT
   const { data, error } = await client
@@ -118,9 +137,20 @@ formKategori.addEventListener("submit", async (e) => {
     return;
   }
 
-  kategoriList.innerHTML = data
-    .map(c => `<li>${escapeHtml(c.name)}</li>`)
-    .join("");
+  kategoriList.innerHTML = data.map(c => `
+    <li style="margin-bottom:6px;">
+      ${escapeHtml(c.name)}
+      <button onclick="editKategori(${c.id}, '${escapeHtml(c.name)}')"
+        style="margin-left:10px;padding:3px 6px;background:#007bff;color:white;border:none;border-radius:4px;">
+        Edit
+      </button>
+      <button onclick="deleteKategori(${c.id})"
+        style="padding:3px 6px;background:#dc3545;color:white;border:none;border-radius:4px;">
+        Hapus
+      </button>
+    </li>
+  `).join("");
+
 
   // Update dropdown produk
   productCategory.innerHTML =
@@ -129,6 +159,31 @@ formKategori.addEventListener("submit", async (e) => {
       `<option value="${escapeHtml(c.name)}">${escapeHtml(c.name)}</option>`
     ).join("");
 }
+//hapus categori
+async function deleteKategori(id) {
+  if (!confirm("Hapus kategori ini?")) return;
+
+  const { error } = await client
+    .from("Categories")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    console.error("Delete error:", error);
+    alert("Gagal menghapus kategori");
+    return;
+  }
+
+  alert("Kategori dihapus");
+  loadCategories();
+}
+//fungsi edit
+function editKategori(id, name) {
+  kategoriName.value = name;
+  formKategori.dataset.editId = id;
+  alert("Mode edit kategori aktif. Silakan ubah lalu klik Simpan.");
+}
+
 // =========== Upload image ===========
 async function uploadImageToStorage(file) {
   if (!file) return null;
@@ -165,6 +220,27 @@ document.getElementById("formProduk").addEventListener("submit", async (e) => {
     Img_url = await uploadImageToStorage(file);
     if (!Img_url) return alert("Gagal upload gambar");
   }
+  
+  // --- UPDATE MODE ---
+    if (editingProductId) {
+        const { error } = await client
+            .from("Products")
+            .update(payload)
+            .eq("id", editingProductId);
+
+        if (error) {
+            console.error(error);
+            return alert("Update gagal");
+        }
+
+        alert("Produk berhasil diupdate!");
+
+        editingProductId = null;
+        submitProductBtn.textContent = "Tambah Produk";
+        productForm.reset();
+        loadProducts();
+        return;
+    }
     // Simpan ke table Supabase
     const { error } = await client.from("Products").insert([{
     name,
@@ -189,10 +265,15 @@ document.getElementById("formProduk").addEventListener("submit", async (e) => {
 
 // --- LOAD PRODUK UNTUK DITAMPILKAN DI ADMIN ---
 async function loadProducts() {
-    const { data: products } = await client
+    const { data: products, error } = await client
         .from("Products")
         .select("*")
         .order("created_at", { ascending: false });
+
+    if (error) {
+        console.error(error);
+        return alert("Gagal memuat produk");
+    }
 
     const grid = document.getElementById("productList");
     grid.innerHTML = "";
@@ -205,15 +286,75 @@ async function loadProducts() {
             <p>Rp ${p.price}</p>
             <small>Kategori: ${p.category}</small>
             <p>${p.desc}</p>
-            <<div>
-${(Array.isArray(p.tags) ? p.tags : (p.tags ? p.tags.split(" ") : []))
-    .map(t => `<span class="tag">${t}</span>`).join(" ")}
-</div>
+
+            <div>
+                ${(Array.isArray(p.tags) ? p.tags : (p.tags ? p.tags.split(" ") : []))
+                .map(t => `<span class="tag">${t}</span>`).join(" ")}
+            </div>
+
             <a href="${p.shopee_link}" target="_blank">Shopee</a>
+
+            <div style="margin-top:8px; display:flex; gap:8px;">
+                <button onclick="editProduct(${p.id})" 
+                    style="padding:6px 10px; background:#007bff; color:white; border:none; border-radius:6px;">
+                    Edit
+                </button>
+
+                <button onclick="deleteProduct(${p.id})" 
+                    style="padding:6px 10px; background:#dc3545; color:white; border:none; border-radius:6px;">
+                    Hapus
+                </button>
+            </div>
         </div>`;
     });
 }
+async function deleteProduct(id) {
+    if (!confirm("Yakin ingin menghapus produk ini?")) return;
 
+    const { error } = await client
+        .from("Products")
+        .delete()
+        .eq("id", id);
+
+    if (error) {
+        console.error(error);
+        return alert("Gagal menghapus produk");
+    }
+
+    alert("Produk berhasil dihapus!");
+    loadProducts(); // refresh daftar
+}
+let editingProductId = null;
+async function editProduct(id) {
+    const { data, error } = await client
+        .from("Products")
+        .select("*")
+        .eq("id", id)
+        .single();
+
+    if (error) {
+        console.error(error);
+        return alert("Gagal mengambil data produk");
+    }
+
+    // Isi form
+    productName.value = data.name;
+    productPrice.value = data.price;
+    productCategory.value = data.category;
+    productDesc.value = data.desc;
+
+    productTags.value = Array.isArray(data.tags)
+        ? data.tags.join(", ")
+        : data.tags;
+
+    productShopee.value = data.shopee_link;
+
+    editingProductId = id;
+
+  document.getElementById("submitProductBtn").textContent = "Update Produk";
+
+    alert("Mode edit aktif. Silakan ubah data produk.");
+}
 loadProducts();
 loadCategories();
 </script>
